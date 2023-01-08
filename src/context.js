@@ -1,4 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useReducer } from "react";
+import { ACTIONS } from "./actions";
+import reducer from "./reducer";
 
 const GlobalContext = React.createContext();
 
@@ -7,41 +9,34 @@ export function useGlobalContext() {
 }
 
 export function AppProvider({ children }) {
-  const [data, setData] = useState([]);
-  const [searchText, setSeachText] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isNull, setIsNull] = useState(false);
-  const [currentDrinkData, setCurrentDrinkData] = useState({});
-  const [currentIngredients, setCurrentIngredients] = useState([]);
-  const [currentDrinkId, setCurrentDrinkId] = useState(null);
-  const [isShowSidebar, setIsShowSidebar] = useState(false);
+  const initialState = {
+    isLoading: false,
+    drinks: [],
+    searchText: "",
+    searchNotFound: false,
+    singleDrink: {},
+    singleDrinkIngredients: [],
+    currentDrinkId: null,
+    isShowSidebar: false,
+  };
 
-  function handleSearch(e) {
-    setSeachText(e.target.value);
-    setCurrentDrinkId(null);
-  }
-  function setNullTrue() {
-    setIsNull(true);
-  }
-  function openSidebar() {
-    setIsShowSidebar(true);
-  }
-  function closeSidebar() {
-    setIsShowSidebar(false);
-  }
+  const [states, dispatch] = useReducer(reducer, initialState);
 
   async function fetchAPI() {
-    setIsLoading(true);
+    dispatch({ type: ACTIONS.SET_ISLOADING, payload: { value: true } });
 
     const response = await fetch(
-      `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${searchText}`
+      `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${states.searchText}`
     );
     const responseJSON = await response.json();
 
-    if (currentDrinkId !== null) {
+    if (states.currentDrinkId !== null) {
       responseJSON.drinks.forEach((drink) => {
-        if (drink.idDrink === currentDrinkId) {
-          setCurrentDrinkData(drink);
+        if (drink.idDrink === states.currentDrinkId) {
+          dispatch({
+            type: ACTIONS.SET_SINGLEDRINK_DATA,
+            payload: { value: drink },
+          });
           const {
             strIngredient1,
             strIngredient2,
@@ -59,56 +54,57 @@ export function AppProvider({ children }) {
             strIngredient14,
             strIngredient15,
           } = drink;
-          setCurrentIngredients([
-            strIngredient1,
-            strIngredient2,
-            strIngredient3,
-            strIngredient4,
-            strIngredient5,
-            strIngredient6,
-            strIngredient7,
-            strIngredient8,
-            strIngredient9,
-            strIngredient10,
-            strIngredient11,
-            strIngredient12,
-            strIngredient13,
-            strIngredient14,
-            strIngredient15,
-          ]);
+          dispatch({
+            type: ACTIONS.SET_SINGLEDRINK_INGREDIENTS,
+            payload: {
+              value: [
+                strIngredient1,
+                strIngredient2,
+                strIngredient3,
+                strIngredient4,
+                strIngredient5,
+                strIngredient6,
+                strIngredient7,
+                strIngredient8,
+                strIngredient9,
+                strIngredient10,
+                strIngredient11,
+                strIngredient12,
+                strIngredient13,
+                strIngredient14,
+                strIngredient15,
+              ],
+            },
+          });
         }
       });
     } else {
-      setData(responseJSON.drinks);
-      setIsNull(responseJSON.drinks !== null ? false : true);
+      dispatch({
+        type: ACTIONS.SET_DRINKS_DATA,
+        payload: { value: responseJSON.drinks },
+      });
+      dispatch({
+        type: ACTIONS.SET_SEARCH_RESULT,
+        payload: { value: responseJSON.drinks !== null ? true : false },
+      });
     }
 
-    setIsLoading(false);
+    dispatch({ type: ACTIONS.SET_ISLOADING, payload: { value: false } });
   }
 
   useEffect(() => {
     fetchAPI();
-  }, [searchText, currentDrinkId]); // eslint-disable-line
+  }, [states.searchText, states.currentDrinkId]); // eslint-disable-line
 
   useEffect(() => {
-    document.body.style.overflow = isShowSidebar ? "hidden" : "auto";
-  }, [isShowSidebar]);
+    document.body.style.overflow = states.isShowSidebar ? "hidden" : "auto";
+  }, [states.isShowSidebar]);
 
   return (
     <GlobalContext.Provider
       value={{
-        data,
-        currentDrinkData,
-        currentIngredients,
-        isShowSidebar,
-        searchText,
-        isLoading,
-        isNull,
-        handleSearch,
-        setNullTrue,
-        setCurrentDrinkId,
-        openSidebar,
-        closeSidebar,
+        states,
+        dispatch,
       }}
     >
       {children}

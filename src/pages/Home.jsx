@@ -2,12 +2,13 @@ import React, { useEffect } from "react";
 import DrinksArea from "../components/DrinksArea";
 import SearchArea from "../components/SearchArea";
 import { useGlobalContext } from "../context";
+import { ACTIONS } from "../actions";
 
 const Home = () => {
-  const { closeSidebar } = useGlobalContext();
+  const { dispatch } = useGlobalContext();
 
   useEffect(() => {
-    closeSidebar();
+    dispatch({ type: ACTIONS.CLOSE_SIDEBAR });
   }, []); // eslint-disable-line
 
   return (

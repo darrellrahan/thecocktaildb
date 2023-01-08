@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useGlobalContext } from "../context";
+import { ACTIONS } from "../actions";
 
 const Help = () => {
-  const { closeSidebar } = useGlobalContext();
+  const { dispatch } = useGlobalContext();
 
   useEffect(() => {
-    closeSidebar();
+    dispatch({ type: ACTIONS.CLOSE_SIDEBAR });
   }, []); // eslint-disable-line
 
   return (

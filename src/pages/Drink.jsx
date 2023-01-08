@@ -2,15 +2,15 @@ import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import { useGlobalContext } from "../context";
+import { ACTIONS } from "../actions";
 
 const Drink = () => {
   const { id } = useParams();
-  const { currentDrinkData, currentIngredients, setCurrentDrinkId, isLoading } =
-    useGlobalContext();
+  const { states, dispatch } = useGlobalContext();
 
   useEffect(() => {
-    setCurrentDrinkId(id);
-  }, [id, setCurrentDrinkId]);
+    dispatch({ type: ACTIONS.SET_DRINKID, payload: { value: id } });
+  }, []); // eslint-disable-line
 
   const {
     strDrinkThumb,
@@ -19,9 +19,9 @@ const Drink = () => {
     strAlcoholic,
     strGlass,
     strInstructions,
-  } = currentDrinkData;
+  } = states.singleDrink;
 
-  if (isLoading) return <Loading />;
+  if (states.isLoading) return <Loading />;
 
   return (
     <div className="drink-ct">
@@ -61,20 +61,22 @@ const Drink = () => {
           </p>
           <p>
             <span className="label">Ingredients : </span>
-            {currentIngredients.length === 0
+            {states.singleDrinkIngredients.length === 0
               ? "loading..."
-              : currentIngredients.map((ingredient, currentIndex) => {
-                  if (
-                    ingredient !== null &&
-                    currentIngredients[currentIndex + 1] === null
-                  ) {
-                    return <span key={currentIndex}>{ingredient}</span>;
+              : states.singleDrinkIngredients.map(
+                  (ingredient, currentIndex) => {
+                    if (
+                      ingredient !== null &&
+                      states.singleDrinkIngredients[currentIndex + 1] === null
+                    ) {
+                      return <span key={currentIndex}>{ingredient}</span>;
+                    }
+                    if (ingredient !== null) {
+                      return <span key={currentIndex}>{ingredient}, </span>;
+                    }
+                    return null;
                   }
-                  if (ingredient !== null) {
-                    return <span key={currentIndex}>{ingredient}, </span>;
-                  }
-                  return null;
-                })}
+                )}
           </p>
         </div>
       </div>

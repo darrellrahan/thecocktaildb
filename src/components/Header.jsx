@@ -3,9 +3,14 @@ import { Link, Outlet } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { useGlobalContext } from "../context";
 import Sidebar from "./Sidebar";
+import { ACTIONS } from "../actions";
 
 const Header = () => {
-  const { openSidebar } = useGlobalContext();
+  const { dispatch } = useGlobalContext();
+
+  function openSidebar() {
+    dispatch({ type: ACTIONS.OPEN_SIDEBAR });
+  }
 
   return (
     <>

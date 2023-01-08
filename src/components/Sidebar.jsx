@@ -5,15 +5,22 @@ import { AiFillHome } from "react-icons/ai";
 import { BsFillTelephoneFill, BsFillInfoCircleFill } from "react-icons/bs";
 import { IoIosHelpCircle } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { ACTIONS } from "../actions";
 
 const Sidebar = () => {
-  const { isShowSidebar, closeSidebar } = useGlobalContext();
+  const { states, dispatch } = useGlobalContext();
+
+  function closeSidebar() {
+    dispatch({ type: ACTIONS.CLOSE_SIDEBAR });
+  }
 
   return (
-    <div className={isShowSidebar ? "sidebar-overlay" : null}>
+    <div className={states.isShowSidebar ? "sidebar-overlay" : null}>
       <div
         className={
-          isShowSidebar ? "sidebar-ct show-sidebar" : "sidebar-ct hide-sidebar"
+          states.isShowSidebar
+            ? "sidebar-ct show-sidebar"
+            : "sidebar-ct hide-sidebar"
         }
       >
         <div className="sidebar-top">

@@ -4,17 +4,18 @@ import Loading from "./Loading";
 import SingleDrinkCard from "./SingleDrinkCard";
 
 const DrinksSection = () => {
-  const { data, isLoading, isNull } = useGlobalContext();
+  const { states } = useGlobalContext();
 
-  if (isLoading) return <Loading />;
+  if (states.isLoading) return <Loading />;
 
-  if (isNull) return <h1 className="no-drinks">No Drinks Found</h1>;
+  if (states.searchNotFound)
+    return <h1 className="no-drinks">No Drinks Found</h1>;
 
   return (
     <div className="drinks-ct">
       <h1 className="title">Drinks</h1>
       <div className="drinks-area">
-        {data.map((drink) => {
+        {states.drinks.map((drink) => {
           const { idDrink, strDrinkThumb, strDrink, strGlass, strAlcoholic } =
             drink;
           return (
